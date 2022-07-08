@@ -18,16 +18,16 @@ namespace winrt::Microsoft::Terminal::Settings::Editor::implementation
         void UpdateSettings(const Model::CascadiaSettings& settings);
 
         void RequestSetCurrentScheme(Editor::ColorSchemeViewModel scheme);
-        void RequestEnterRename();
-        bool RequestExitRename(bool saveChanges, winrt::hstring newName);
+        bool RequestRenameCurrentScheme(winrt::hstring newName);
         void RequestDeleteCurrentScheme();
         Editor::ColorSchemeViewModel RequestAddNew();
+        void RequestSetCurrentPage(ColorSchemesSubPage subPage);
 
         bool CanDeleteCurrentScheme() const;
 
         WINRT_CALLBACK(PropertyChanged, Windows::UI::Xaml::Data::PropertyChangedEventHandler);
 
-        WINRT_OBSERVABLE_PROPERTY(bool, InRenameMode, _PropertyChangedHandlers, false);
+        WINRT_OBSERVABLE_PROPERTY(ColorSchemesSubPage, CurrentPage, _PropertyChangedHandlers, ColorSchemesSubPage::Base);
         WINRT_OBSERVABLE_PROPERTY(Editor::ColorSchemeViewModel, CurrentScheme, _PropertyChangedHandlers, nullptr);
         WINRT_OBSERVABLE_PROPERTY(Windows::Foundation::Collections::IObservableVector<Editor::ColorSchemeViewModel>, AllColorSchemes, _PropertyChangedHandlers, nullptr);
 

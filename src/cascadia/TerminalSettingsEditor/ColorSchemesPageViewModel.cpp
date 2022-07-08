@@ -52,6 +52,11 @@ namespace winrt::Microsoft::Terminal::Settings::Editor::implementation
             }
             it.MoveNext();
         }
+        if (!it.HasCurrent())
+        {
+            // we didn't find the previously selected scheme, just select the first one
+            CurrentScheme(_AllColorSchemes.GetAt(0));
+        }
     }
 
     void ColorSchemesPageViewModel::_MakeColorSchemeVMsHelper()
@@ -62,7 +67,7 @@ namespace winrt::Microsoft::Terminal::Settings::Editor::implementation
         for (const auto& pair : colorSchemeMap)
         {
             const auto scheme = pair.Value();
-            Editor::ColorSchemeViewModel viewModel{ scheme };
+            Editor::ColorSchemeViewModel viewModel{ scheme, *this };
             allColorSchemes.emplace_back(viewModel);
 
             // We will need access to the settings model object later, but we don't
@@ -82,33 +87,26 @@ namespace winrt::Microsoft::Terminal::Settings::Editor::implementation
         _PropertyChangedHandlers(*this, Windows::UI::Xaml::Data::PropertyChangedEventArgs{ L"CanDeleteCurrentScheme" });
     }
 
-    void ColorSchemesPageViewModel::RequestEnterRename()
+    bool ColorSchemesPageViewModel::RequestRenameCurrentScheme(hstring newName)
     {
-        InRenameMode(true);
-    }
-
-    bool ColorSchemesPageViewModel::RequestExitRename(bool saveChanges, hstring newName)
-    {
-        InRenameMode(false);
-        if (saveChanges)
+        // check if different name is already in use
+        const auto oldName{ CurrentScheme().Name() };
+        if (newName != oldName && _settings.GlobalSettings().ColorSchemes().HasKey(newName))
         {
-            // check if different name is already in use
-            const auto oldName{ CurrentScheme().Name() };
-            if (newName != oldName && _settings.GlobalSettings().ColorSchemes().HasKey(newName))
-            {
-                return false;
-            }
-            else
-            {
-                // update the settings model
-                CurrentScheme().Name(newName);
-                _settings.GlobalSettings().RemoveColorScheme(oldName);
-                _settings.GlobalSettings().AddColorScheme(_viewModelToSchemeMap.Lookup(CurrentScheme()));
-                _settings.UpdateColorSchemeReferences(oldName, newName);
-                return true;
-            }
+            return false;
         }
-        return false;
+        else
+        {
+            // update the settings model
+            CurrentScheme().Name(newName);
+            _settings.GlobalSettings().RemoveColorScheme(oldName);
+            _settings.GlobalSettings().AddColorScheme(_viewModelToSchemeMap.Lookup(CurrentScheme()));
+            _settings.UpdateColorSchemeReferences(oldName, newName);
+
+            // We need to let MainPage know so the BreadcrumbBarItem can be updated
+            _PropertyChangedHandlers(*this, Windows::UI::Xaml::Data::PropertyChangedEventArgs{ L"CurrentSchemeName" });
+            return true;
+        }
     }
 
     void ColorSchemesPageViewModel::RequestDeleteCurrentScheme()
@@ -120,6 +118,7 @@ namespace winrt::Microsoft::Terminal::Settings::Editor::implementation
         {
             if (_AllColorSchemes.GetAt(i).Name() == name)
             {
+                _viewModelToSchemeMap.Remove(_AllColorSchemes.GetAt(i));
                 _AllColorSchemes.RemoveAt(i);
                 break;
             }
@@ -141,9 +140,15 @@ namespace winrt::Microsoft::Terminal::Settings::Editor::implementation
         _settings.GlobalSettings().AddColorScheme(scheme);
 
         // Construct the new color scheme VM
-        const Editor::ColorSchemeViewModel schemeVM{ scheme };
+        const Editor::ColorSchemeViewModel schemeVM{ scheme, *this };
         _AllColorSchemes.Append(schemeVM);
+        _viewModelToSchemeMap.Insert(schemeVM, scheme);
         return schemeVM;
+    }
+
+    void ColorSchemesPageViewModel::RequestSetCurrentPage(ColorSchemesSubPage subPage)
+    {
+        CurrentPage(subPage);
     }
 
     bool ColorSchemesPageViewModel::CanDeleteCurrentScheme() const
@@ -151,7 +156,7 @@ namespace winrt::Microsoft::Terminal::Settings::Editor::implementation
         if (const auto& scheme{ CurrentScheme() })
         {
             // Only allow this color scheme to be deleted if it's not provided in-box
-            return std::find(std::begin(InBoxSchemes), std::end(InBoxSchemes), scheme.Name()) == std::end(InBoxSchemes);
+            return !scheme.IsInBoxScheme();
         }
         return false;
     }
