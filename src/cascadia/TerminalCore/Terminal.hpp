@@ -249,6 +249,12 @@ public:
         Down
     };
 
+    enum class SearchDirection
+    {
+        Forward,
+        Backward
+    };
+
     enum class SelectionExpansion
     {
         Char,
@@ -273,6 +279,8 @@ public:
     SelectionInteractionMode SelectionMode() const noexcept;
     void SwitchSelectionEndpoint();
     void ToggleMarkMode();
+    void SelectHyperlink(const SearchDirection dir);
+    bool IsTargetingUrl() const noexcept;
 
     using UpdateSelectionParams = std::optional<std::pair<SelectionDirection, SelectionExpansion>>;
     UpdateSelectionParams ConvertKeyEventToUpdateSelectionParams(const ControlKeyStates mods, const WORD vkey) const;
@@ -349,6 +357,7 @@ private:
     std::wstring _wordDelimiters;
     SelectionExpansion _multiClickSelectionMode;
     SelectionInteractionMode _selectionMode;
+    bool _isTargetingUrl;
     SelectionEndpoint _selectionEndpoint;
     bool _anchorInactiveSelectionEndpoint;
 #pragma endregion
@@ -424,6 +433,7 @@ private:
     std::pair<til::point, til::point> _PivotSelection(const til::point targetPos, bool& targetStart) const;
     std::pair<til::point, til::point> _ExpandSelectionAnchors(std::pair<til::point, til::point> anchors) const;
     til::point _ConvertToBufferCell(const til::point viewportPos) const;
+    void _ScrollToPoint(const til::point pos);
     void _MoveByChar(SelectionDirection direction, til::point& pos);
     void _MoveByWord(SelectionDirection direction, til::point& pos);
     void _MoveByViewport(SelectionDirection direction, til::point& pos);
