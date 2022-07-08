@@ -17,7 +17,7 @@ namespace winrt::Microsoft::Terminal::Settings::Editor::implementation
         _parentPageVM{ parentPageVM }
     {
         _Name = scheme.Name();
-        _isInBoxScheme = std::find(std::begin(InBoxSchemes), std::end(InBoxSchemes), scheme.Name()) != std::end(InBoxSchemes);
+        _isInBoxScheme = false; /*DH std::find(std::begin(InBoxSchemes), std::end(InBoxSchemes), scheme.Name()) != std::end(InBoxSchemes);*/
 
         const auto colorEntryChangedHandler = [&](const IInspectable& sender, const PropertyChangedEventArgs& args) {
             if (const auto entry{ sender.try_as<ColorTableEntry>() })
