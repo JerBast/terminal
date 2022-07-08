@@ -83,6 +83,13 @@
     </ClInclude>
     <ClInclude Include="LaunchViewModel.h">
       <DependentUpon>LaunchViewModel.idl</DependentUpon>
+    </ClInclude>
+    <ClInclude Include="ColorSchemeViewModel.h">
+      <DependentUpon>ColorSchemeViewModel.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="ColorSchemesPageViewModel.h">
+      <DependentUpon>ColorSchemesPageViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="Profiles_Base.h">
@@ -199,6 +206,13 @@
     </ClCompile>
     <ClCompile Include="LaunchViewModel.cpp">
       <DependentUpon>LaunchViewModel.idl</DependentUpon>
+    </ClCompile>
+    <ClCompile Include="ColorSchemeViewModel.cpp">
+      <DependentUpon>ColorSchemeViewModel.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="ColorSchemesPageViewModel.cpp">
+      <DependentUpon>ColorSchemesPageViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="Profiles_Base.cpp">
@@ -272,6 +286,8 @@
     </Midl>
     <Midl Include="ProfileViewModel.idl" />
     <Midl Include="LaunchViewModel.idl" />
+    <Midl Include="ColorSchemeViewModel.idl" />
+    <Midl Include="ColorSchemesPageViewModel.idl" />
     <Midl Include="Profiles_Base.idl">
       <DependentUpon>Profiles_Base.xaml</DependentUpon>
       <SubType>Code</SubType>
