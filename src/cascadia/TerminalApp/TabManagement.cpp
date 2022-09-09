@@ -216,9 +216,7 @@ namespace winrt::TerminalApp::implementation
 
             if (page && tab)
             {
-                // Passing null args to the ExportBuffer handler will default it
-                // to prompting for the path
-                page->_HandleExportBuffer(nullptr, nullptr);
+                page->_ExportTab(*tab, L"");
             }
         });
 
